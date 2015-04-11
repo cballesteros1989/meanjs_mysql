@@ -4,7 +4,7 @@
 [![Dependencies Status](https://david-dm.org/meanjs/mean.svg)](https://david-dm.org/meanjs/mean)
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/meanjs/mean?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-MEAN.JS is a full-stack JavaScript open-source solution, which provides a solid starting point for [MongoDB](http://www.mongodb.org/), [Node.js](http://www.nodejs.org/), [Express](http://expressjs.com/), and [AngularJS](http://angularjs.org/) based applications. The idea is to solve the common issues with connecting those frameworks, build a robust framework to support daily development needs, and help developers use better practices while working with popular JavaScript components.
+MEAN.JS
 
 ## Before You Begin
 Before you begin we recommend you read about the basic building blocks that assemble a MEAN.JS application:
@@ -17,7 +17,7 @@ Before you begin we recommend you read about the basic building blocks that asse
 ## Prerequisites
 Make sure you have installed all of the following prerequisites on your development machine:
 * Node.js - [Download & Install Node.js](http://www.nodejs.org/download/) and the npm package manager. If you encounter any problems, you can also use this [GitHub Gist](https://gist.github.com/isaacs/579814) to install Node.js.
-* MongoDB - [Download & Install MongoDB](http://www.mongodb.org/downloads), and make sure it's running on the default port (27017).
+* MySQL - [Download & Install MySQL](http://www.mysql.com/), and make sure it's running on the default port (3306).
 * Bower - You're going to use the [Bower Package Manager](http://bower.io/) to manage your front-end packages. Make sure you've installed Node.js and npm first, then install bower globally using npm:
 
 ```bash
@@ -39,7 +39,7 @@ The recommended way would be to use the [Official Yo Generator](http://meanjs.or
 ### Cloning The GitHub Repository
 You can also use Git to directly clone the MEAN.JS repository:
 ```bash
-$ git clone https://github.com/meanjs/mean.git meanjs
+$ git clone https://github.com/cballesteros1989/meanjs_mysql.git meanjs
 ```
 This will clone the latest version of the MEAN.JS repository to a **meanjs** folder.
 
