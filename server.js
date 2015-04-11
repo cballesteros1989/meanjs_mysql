@@ -4,32 +4,19 @@
  */
 var init = require('./config/init')(),
 	config = require('./config/config'),
-	mongoose = require('mongoose'),
-	chalk = require('chalk');
+	chalk = require('chalk'),
+	passport = require('./config/passport');
 
 /**
  * Main application entry file.
  * Please note that the order of loading is important.
  */
 
-// Bootstrap db connection
-var db = mongoose.connect(config.db.uri, config.db.options, function(err) {
-	if (err) {
-		console.error(chalk.red('Could not connect to MongoDB!'));
-		console.log(chalk.red(err));
-	}
-});
-mongoose.connection.on('error', function(err) {
-	console.error(chalk.red('MongoDB connection error: ' + err));
-	process.exit(-1);
-	}
-);
 
 // Init the express application
-var app = require('./config/express')(db);
+var app = require('./config/express')(passport);
 
 // Bootstrap passport config
-require('./config/passport')();
 
 // Start the app by listening on <port>
 app.listen(config.port);

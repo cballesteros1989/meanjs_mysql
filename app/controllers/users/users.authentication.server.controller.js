@@ -5,16 +5,39 @@
  */
 var _ = require('lodash'),
 	errorHandler = require('../errors.server.controller'),
-	mongoose = require('mongoose'),
 	passport = require('passport'),
-	User = mongoose.model('User');
+	User = require('../../models/user.server.model.js'),
+	db = require('../../../config/sequelize.js');
 
 /**
  * Signup
  */
 exports.signup = function(req, res) {
+	var message = null;
+
+	var user = db.User.build(req.body);
+
+	user.firstName = req.body.firstName;
+	user.lastName = req.body.lastName;
+	user.provider = 'local';
+	user.salt = user.makeSalt();
+	user.hashedPassword = user.encryptPassword(req.body.password, user.salt);
+
+
+	user.save().success(function(){
+		req.login(user, function(err){
+			if(err) return next(err);
+			res.redirect('/');
+		});
+	}).error(function(err){
+		res.render('users/signup',{
+			message: message,
+			user: user
+		});
+	});
+
 	// For security measurement we remove the roles from the req.body object
-	delete req.body.roles;
+	/*delete req.body.roles;
 
 	// Init Variables
 	var user = new User(req.body);
@@ -43,29 +66,34 @@ exports.signup = function(req, res) {
 				}
 			});
 		}
-	});
+	});*/
 };
 
 /**
  * Signin after passport authentication
  */
 exports.signin = function(req, res, next) {
-	passport.authenticate('local', function(err, user, info) {
-		if (err || !user) {
-			res.status(400).send(info);
-		} else {
-			// Remove sensitive data before login
-			user.password = undefined;
-			user.salt = undefined;
 
-			req.login(user, function(err) {
-				if (err) {
-					res.status(400).send(err);
-				} else {
-					res.json(user);
-				}
-			});
-		}
+	var username = req.body.username;
+	var password = req.body.password;
+	console.log("login",username,password);
+
+	passport.authenticate('local',function() {
+
+		db.User.find({ where: { username: username }}).success(function(user) {
+			console.log("encontrado",user);
+			if (!user) {
+				res.status(400).send("Usuario No existe");
+			} else if (!user.authenticate(password)) {
+				res.status(400).send("Password Incorrecto");
+			} else {
+				console.log('Login (local) : { id: ' + user.id + ', username: ' + user.username + ' }');
+				res.json(user);
+			}
+		}).error(function(err){
+			done(err);
+		});
+
 	})(req, res, next);
 };
 

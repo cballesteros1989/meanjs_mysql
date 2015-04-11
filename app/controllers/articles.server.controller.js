@@ -1,29 +1,29 @@
 'use strict';
-
 /**
  * Module dependencies.
  */
-var mongoose = require('mongoose'),
-	errorHandler = require('./errors.server.controller'),
-	Article = mongoose.model('Article'),
-	_ = require('lodash');
+var db = require('../../config/sequelize');
 
 /**
  * Create a article
  */
 exports.create = function(req, res) {
-	var article = new Article(req.body);
-	article.user = req.user;
-
-	article.save(function(err) {
-		if (err) {
-			return res.status(400).send({
-				message: errorHandler.getErrorMessage(err)
-			});
+	// augment the article by adding the UserId
+	req.body.UserId = req.user.id;
+	// save and return and instance of article on the res object.
+	db.Article.create(req.body).success(function(article){
+		if(!article){
+			return res.send('users/signup', {errors: err});
 		} else {
-			res.json(article);
+			return res.jsonp(article);
 		}
+	}).error(function(err){
+		return res.send('users/signup', {
+			errors: err,
+			status: 500
+		});
 	});
+
 };
 
 /**
@@ -39,16 +39,16 @@ exports.read = function(req, res) {
 exports.update = function(req, res) {
 	var article = req.article;
 
-	article = _.extend(article, req.body);
-
-	article.save(function(err) {
-		if (err) {
-			return res.status(400).send({
-				message: errorHandler.getErrorMessage(err)
-			});
-		} else {
-			res.json(article);
-		}
+	article.updateAttributes({
+		title: req.body.title,
+		content: req.body.content
+	}).success(function(a){
+		return res.jsonp(a);
+	}).error(function(err){
+		return res.render('error', {
+			error: err,
+			status: 500
+		});
 	});
 };
 
@@ -56,16 +56,16 @@ exports.update = function(req, res) {
  * Delete an article
  */
 exports.delete = function(req, res) {
+	// create a new variable to hold the article that was placed on the req object.
 	var article = req.article;
 
-	article.remove(function(err) {
-		if (err) {
-			return res.status(400).send({
-				message: errorHandler.getErrorMessage(err)
-			});
-		} else {
-			res.json(article);
-		}
+	article.destroy().success(function(){
+		return res.jsonp(article);
+	}).error(function(err){
+		return res.render('error', {
+			error: err,
+			status: 500
+		});
 	});
 };
 
@@ -73,17 +73,20 @@ exports.delete = function(req, res) {
  * List of Articles
  */
 exports.list = function(req, res) {
-	Article.find().sort('-created').populate('user', 'displayName').exec(function(err, articles) {
-		if (err) {
-			return res.status(400).send({
-				message: errorHandler.getErrorMessage(err)
-			});
-		} else {
-			res.json(articles);
-		}
+	db.Article.findAll({include: [db.User]}).success(function(articles){
+		return res.jsonp(articles);
+	}).error(function(err){
+		return res.render('error', {
+			error: err,
+			status: 500
+		});
 	});
 };
-
+exports.show = function(req, res) {
+	// Sending down the article that was just preloaded by the articles.article function
+	// and saves article on the req object.
+	return res.jsonp(req.article);
+};
 /**
  * Article middleware
  */
